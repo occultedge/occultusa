@@ -750,8 +750,111 @@
             </form>
         </div>
 
-       
+      <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayPal Payment Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .payment-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .paypal-btn {
+            margin-top: 20px;
+        }
+        .select-amount {
+            margin: 20px 0;
+            text-align: center;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
 
+    <div class="container">
+        <h1>Make a Payment</h1>
+        <p>Select an amount to pay and proceed with the secure payment via PayPal.</p>
+
+        <!-- Payment Amount Selection -->
+        <div class="select-amount">
+            <label for="amount">Select Amount:</label>
+            <select id="amount">
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option value="1500">1500</option>
+            </select>
+        </div>
+
+        <!-- PayPal Button Container -->
+        <div class="payment-section">
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+
+    <!-- Load the PayPal SDK script -->
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
     <script>
-        function calculateConsult
-       <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+        let selectedAmount = document.getElementById("amount").value; // Default to first option
+
+        // Update the selected amount when user changes the dropdown
+        document.getElementById("amount").addEventListener("change", function() {
+            selectedAmount = this.value;
+        });
+
+        // Render the PayPal button
+        paypal.Buttons({
+            // Set up the transaction details
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: selectedAmount // Use the selected amount
+                        }
+                    }]
+                });
+            },
+
+            // Finalize the transaction after payment approval
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    alert('Transaction completed by ' + details.payer.name.given_name);
+                });
+            },
+
+            // On cancel or error
+            onCancel: function(data) {
+                alert('Payment was cancelled.');
+            },
+            onError: function(err) {
+                alert('An error occurred during the transaction.');
+            }
+
+        }).render('#paypal-button-container'); // Display the PayPal button in the container
+    </script>
+
+</body>
+</html>
+
