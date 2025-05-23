@@ -877,66 +877,67 @@
 <body>
 
     <div class="container">
-        <h1>Make a Payment</h1>
-        <p>Select an amount to pay and proceed with the secure payment via PayPal.</p>
+    <h1>Make a Payment</h1>
+    <p>Select an amount to pay and proceed with a secure payment via PayPal or Zelle.</p>
 
-        <!-- Payment Amount Selection -->
-        <div class="select-amount">
-            <label for="amount">Select Amount:</label>
-            <select id="amount">
-                <option value="500">500</option>
-                <option value="1000">1000</option>
-                <option value="1500">1500</option>
-            </select>
-        </div>
-
-        <!-- PayPal Button Container -->
-        <div class="payment-section">
-            <div id="paypal-button-container"></div>
-        </div>
+    <!-- Payment Amount Selection -->
+    <div class="select-amount" style="margin-bottom: 20px;">
+        <label for="amount">Select Amount (USD):</label>
+        <select id="amount">
+            <option value="500">500</option>
+            <option value="1000">1000</option>
+            <option value="1500">1500</option>
+        </select>
     </div>
 
-    <!-- Load the PayPal SDK script -->
-    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
-    <script>
-        let selectedAmount = document.getElementById("amount").value; // Default to first option
+    <!-- PayPal Payment -->
+    <div class="payment-section" style="margin-bottom: 20px;">
+        <h3>Pay with PayPal</h3>
+        <div id="paypal-button-container"></div>
+    </div>
 
-        // Update the selected amount when user changes the dropdown
-        document.getElementById("amount").addEventListener("change", function() {
-            selectedAmount = this.value;
-        });
+    <!-- Zelle Payment Info -->
+    <div class="zelle-section" style="background: #ffe6e6; padding: 15px; border: 1px solid #b30000; border-radius: 6px;">
+        <h3>Pay with Zelle</h3>
+        <p>Send payment to <strong>rayberg@occultedgeusa.com</strong></p>
+        <p>Amount: <span id="zelle-amount">500</span> USD</p>
+        <p>After payment, <a href="https://wa.me/19515451404?text=Hi%20I%20paid%20via%20Zelle%20for%20the%20online%20program.%20Please%20confirm.">click here to confirm via WhatsApp</a>.</p>
+    </div>
+</div>
 
-        // Render the PayPal button
-        paypal.Buttons({
-            // Set up the transaction details
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: {
-                            value: selectedAmount // Use the selected amount
-                        }
-                    }]
-                });
-            },
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+<script>
+    let selectedAmount = document.getElementById("amount").value;
 
-            // Finalize the transaction after payment approval
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    alert('Transaction completed by ' + details.payer.name.given_name);
-                });
-            },
+    // Update both PayPal and Zelle displays
+    document.getElementById("amount").addEventListener("change", function() {
+        selectedAmount = this.value;
+        document.getElementById("zelle-amount").innerText = selectedAmount;
+    });
 
-            // On cancel or error
-            onCancel: function(data) {
-                alert('Payment was cancelled.');
-            },
-            onError: function(err) {
-                alert('An error occurred during the transaction.');
-            }
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: { value: selectedAmount }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                alert('Transaction completed by ' + details.payer.name.given_name);
+            });
+        },
+        onCancel: function(data) {
+            alert('Payment was cancelled.');
+        },
+        onError: function(err) {
+            alert('An error occurred during the transaction.');
+        }
+    }).render('#paypal-button-container');
+</script>
 
-        }).render('#paypal-button-container'); // Display the PayPal button in the container
-    </script>
 
 </body>
 </html>
-
